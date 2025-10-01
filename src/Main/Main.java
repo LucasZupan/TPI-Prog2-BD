@@ -2,13 +2,13 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
  */
-package tpi.prog2.bd;
+package Main;
 
 /**
  *
  * @author lezup
  */
-public class TPIProg2BD {
+public class Main {
 
     /**
      * @param args the command line arguments
