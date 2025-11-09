@@ -9,6 +9,9 @@ public abstract class Base {
     this.eliminado = eliminado;
     }
     
+    public Base() {    
+    this.eliminado = false;
+    }
     public int getId() {
         return id;
     }
@@ -19,8 +22,10 @@ public abstract class Base {
        
     public Boolean isEliminado() {
         return eliminado;
+    }  
+ 
+    public void setEliminado(boolean eliminado) {
+        this.eliminado = eliminado;
     }
-    
-    public Base(){}
     
 }
