@@ -1,14 +1,12 @@
 package Dao;
 
 import Config.DatabaseConnection;
-import Models.Mascota;
 import Models.Microchip;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
