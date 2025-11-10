@@ -82,7 +82,27 @@ public class MascotaDAO implements GenericDAO<Mascota> {
             "c.id AS mc_id, c.codigo, c.fecha_implantacion, c.veterinaria" +
             "FROM mascotas m LEFT JOIN microchips c ON m.microchip_id = c.id " +
             "WHERE m.eliminado = FALSE AND (m.nombre LIKE ? OR m.duenio LIKE ?)";
+  
+    /**
+     * DAO de microchips (actualmente no usado, pero disponible para operaciones futuras).
+     * Inyectado en el constructor por si se necesita coordinar operaciones.
+     */
+    private final MicrochipDAO microchipDAO;
 
+    /**
+     * Constructor con inyección de MicrochipDAO.
+     * Valida que la dependencia no sea null (fail-fast).
+     *
+     * @param microchipDAO DAO de microchips
+     * @throws IllegalArgumentException si domicilioDAO es null
+     */
+    public MascotaDAO(MicrochipDAO microchipDAO) {
+        if (microchipDAO == null) {
+            throw new IllegalArgumentException("MicrochipDAO no puede ser null");
+        }
+        this.microchipDAO = microchipDAO;
+    }
+    
     /**
      * Inserta una mascota en la base de datos (versión sin transacción).
      * Crea su propia conexión y la cierra automáticamente.

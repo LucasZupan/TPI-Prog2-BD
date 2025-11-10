@@ -1,20 +1,44 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
- */
 package Main;
 
 /**
+ * Punto de entrada alternativo de la aplicación.
+ * Clase simple que delega inmediatamente a AppMenu.
  *
- * @author lezup
+ * Responsabilidad:
+ * - Proporcionar un punto de entrada main() estándar
+ * - Delegar la ejecución a AppMenu
+ *
+ * Diferencia con AppMenu.main():
+ * - AppMenu.main(): Punto de entrada primario (más usado)
+ * - Main.main(): Punto de entrada alternativo (mismo comportamiento)
+ *
+ * Ambos métodos hacen exactamente lo mismo:
+ * 1. Crean instancia de AppMenu
+ * 2. Llaman a app.run() para iniciar el menú
+ *
+ * ¿Por qué existen dos puntos de entrada?
+ * - Flexibilidad: Algunos IDEs buscan clase Main por convención
+ * - AppMenu es más semántico como nombre de clase principal
+ * - Mantener Main por compatibilidad/convención
+ *
+ * Uso recomendado:
+ * - Para ejecutar desde IDE: Usar AppMenu.main() o Main.main() (indistinto)
+ * - Para ejecutar desde JAR: Especificar AppMenu o Main en manifest
  */
 public class Main {
-
     /**
-     * @param args the command line arguments
+     * Punto de entrada alternativo de la aplicación Java.
+     * Crea AppMenu y ejecuta el menú principal.
+     *
+     * Flujo:
+     * 1. Crea instancia de AppMenu (inicializa toda la aplicación)
+     * 2. Llama a app.run() que ejecuta el loop del menú
+     * 3. Cuando el usuario sale (opción 0), run() termina y la aplicación finaliza
+     *
+     * @param args Argumentos de línea de comandos (no usados)
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+        AppMenu app = new AppMenu();
+        app.run();
     }
-    
 }
