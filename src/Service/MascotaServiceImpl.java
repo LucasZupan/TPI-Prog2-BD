@@ -1,5 +1,6 @@
 package Service;
 
+import Dao.MascotaDAO;
 import Models.Mascota;
 import java.util.List;
 

@@ -1,5 +1,6 @@
 package Dao;
 
+import Models.Microchip;
 import java.sql.Connection;
 import java.util.List;
 
@@ -13,6 +14,6 @@ public interface GenericDAO<T> {
     void actualizar(T entidad)throws Exception;
     void eliminar(int id)throws Exception;
     T getById(int id)throws Exception;
-    List<T> getAll()throws Exception;
+    List<T> getAll()throws Exception;   
 
 }

@@ -69,7 +69,16 @@ public class MicrochipDAO implements GenericDAO<Microchip> {
      * SELECT * es aceptable aquí porque Domicilio tiene solo 6 columnas.
      */
     private static final String SELECT_ALL_SQL = "SELECT * FROM microchips WHERE eliminado = FALSE";
-
+   
+    /**
+     * Query de búsqueda exacta por codigo.
+     * Usa comparación exacta (=) porque el codigo es único.
+     * Usado por MicrochiperviceImpl.validateCodigoUnique() para verificar unicidad.
+     * Solo microchips activos (eliminado=FALSE).
+     */
+    private static final String SEARCH_BY_CODIGO_SQL = "SELECT c.id, c.codigo, c.fecha_implantacion, c.veterinaria, c.observaciones, " +            
+            "FROM microchips c " +
+            "WHERE c.eliminado = FALSE AND c.codigo = ?";
     /**
      * Inserta un microchip en la base de datos (versión sin transacción).
      * Crea su propia conexión y la cierra automáticamente.
@@ -314,5 +323,24 @@ public class MicrochipDAO implements GenericDAO<Microchip> {
             rs.getString("veterinaria"),
             rs.getString("observaciones")
         );
-    }    
+    } 
+    
+    public Microchip buscarPorCodigo(String codigo) throws SQLException {
+        if (codigo == null || codigo.trim().isEmpty()) {
+            throw new IllegalArgumentException("El codigo no puede estar vacío");
+        }
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(SEARCH_BY_CODIGO_SQL)) {
+
+            stmt.setString(1, codigo.trim());
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToMicrochip(rs);
+                }
+            }
+        }
+        return null;
+    }
 }
