@@ -41,7 +41,7 @@ public class MenuHandler {
      * Valida que las dependencias no sean null (fail-fast).
      *
      * @param scanner Scanner compartido para entrada de usuario
-     * @param mascotaService Servicio de personas
+     * @param mascotaService Servicio de mascotas
      * @throws IllegalArgumentException si alguna dependencia es null
      */
     public MenuHandler(Scanner scanner, MascotaServiceImpl mascotaService) {
@@ -49,7 +49,7 @@ public class MenuHandler {
             throw new IllegalArgumentException("Scanner no puede ser null");
         }
         if (mascotaService == null) {
-            throw new IllegalArgumentException("PersonaService no puede ser null");
+            throw new IllegalArgumentException("MascotaService no puede ser null");
         }
         this.scanner = scanner;
         this.mascotaService = mascotaService;
@@ -288,7 +288,7 @@ public class MenuHandler {
      * 3. Muestra ID generado
      *
      * Uso típico:
-     * - Crear microchip que luego se asignará a una mascota (opción 7)
+     * - Crear microchip que luego se asignará a una mascota (opción 9)
      * - Pre-cargar microchipz en la BD
      */
     public void crearMicrochipIndependiente() {
@@ -344,7 +344,7 @@ public class MenuHandler {
      */
     public void actualizarMicrochipPorId() {
         try {
-            System.out.print("ID del domicilio a actualizar: ");
+            System.out.print("ID del microchip a actualizar: ");
             int id = Integer.parseInt(scanner.nextLine());
             Microchip m = mascotaService.getMicrochipService().getById(id);
 
@@ -460,7 +460,8 @@ public class MenuHandler {
             if (!codigo.isEmpty()) {
                 c.setCodigo(codigo);
             }    
-            System.out.print("Nueva fecha de implantacion (actual: " + c.getFechaImplantacion()+ ", formato dd/MM/yyyy, Enter para mantener): ");
+            System.out.print("Nueva fecha de implantacion (actual: " + (c.getFechaImplantacion() != null ? c.getFechaImplantacion():"Sin fecha")
+                    + ", formato dd/MM/yyyy, Enter para mantener): ");
             String fechaStr = scanner.nextLine().trim();
             if (!fechaStr.isEmpty()) {
                 try {
@@ -473,13 +474,15 @@ public class MenuHandler {
                 }
             }
             
-            System.out.print("Nueva veterinaria (actual: " + c.getVeterinaria()+ ", Enter para mantener): ");
+            System.out.print("Nueva veterinaria (actual: " + (c.getVeterinaria() != null ? c.getVeterinaria() : "No asignada")
+                    + ", Enter para mantener): ");
             String veterinaria = scanner.nextLine().trim();
             if (!veterinaria.isEmpty()) {
                 c.setVeterinaria(veterinaria);
              }
             
-            System.out.print("Nuevas observaciones (actuales: " + c.getObservaciones()+ ", Enter para mantener): ");
+            System.out.print("Nuevas observaciones (actuales: " + (c.getObservaciones() != null ? c.getObservaciones() : "Sin observaciones") 
+                    + ", Enter para mantener): ");
             String observaciones = scanner.nextLine().trim();
             if (!observaciones.isEmpty()) {
                 c.setObservaciones(observaciones);    
@@ -499,7 +502,7 @@ public class MenuHandler {
      * 1. Solicita ID de la mascota
      * 2. Verifica que la mascota exista y tenga microchip
      * 3. Invoca mascotaService.eliminarMicrochipDeMascota() que:
-     *    a. Desasocia microchip de mascota (mascota.domicilio = null)
+     *    a. Desasocia microchip de mascota (mascota.microchip = null)
      *    b. Actualiza mascota en BD (microchip_id = NULL)
      *    c. Elimina el microchip (ahora no hay FKs apuntando a él)
      *
@@ -545,7 +548,7 @@ public class MenuHandler {
      * 3. Crea objeto Microchip con ID=0 (será asignado por BD al insertar)
      *
      * Usado por:
-     * - crearMascota(): Para agregar microchip al crear persona
+     * - crearMascota(): Para agregar microchip al crear mascota
      * - crearMicrochipIndependiente(): Para crear microchip sin asociar
      * - actualizarMicrochipDeMascota(): Para agregar microchip a mascota sin microchip
      *
@@ -588,7 +591,7 @@ public class MenuHandler {
      *    - Pregunta si desea agregar uno
      *    - Si sí, captura codigo, fecha de implantacion, veterinaria, observaciones con crearMicrochip()
      *    - Inserta microchip en BD (obtiene ID)
-     *    - Asocia microchip a la persona
+     *    - Asocia microchip a la mascota
      *
      * Usado exclusivamente por actualizarMascota() (opción 3).
      *
@@ -630,7 +633,7 @@ public class MenuHandler {
                 System.out.print("Nuevas observaciones (" + m.getMicrochip().getObservaciones()+ "): ");
                 String observaciones = scanner.nextLine().trim();
                 if (!observaciones.isEmpty()) {
-                   m.getMicrochip().setVeterinaria(observaciones);
+                   m.getMicrochip().setObservaciones(observaciones);
                 }          
 
                 mascotaService.getMicrochipService().actualizar(m.getMicrochip());
