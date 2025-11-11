@@ -14,6 +14,7 @@ public interface GenericDAO<T> {
     void actualizar(T entidad)throws Exception;
     void eliminar(int id)throws Exception;
     T getById(int id)throws Exception;
-    List<T> getAll()throws Exception;   
+    List<T> getAll()throws Exception; 
+    
 
 }

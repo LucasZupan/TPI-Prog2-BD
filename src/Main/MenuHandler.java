@@ -1,4 +1,3 @@
-
 package Main;
 
 import Models.Mascota;
@@ -78,10 +77,8 @@ public class MenuHandler {
      */
     public void crearMascota() {
         try {
-        System.out.print("Nombre: ");
-        String nombre = scanner.nextLine().trim();
-        System.out.print("Especie: ");
-        String especie = scanner.nextLine().trim();
+        String nombre  = pedirObligatorio("Nombre: ");
+        String especie = pedirObligatorio("Especie: ");
         System.out.print("Raza: ");
         String raza = scanner.nextLine().trim();
         if (raza.isEmpty()) raza = null;
@@ -97,8 +94,7 @@ public class MenuHandler {
                 System.out.println("Fecha inválida. Se guardará sin fecha de nacimiento.");
             }
         }
-        System.out.print("Duenio: ");
-        String duenio = scanner.nextLine().trim();
+         String duenio  = pedirObligatorio("Duenio: ");
 
             Microchip microchip = null;
             System.out.print("¿Desea agregar un microchip? (s/n): ");
@@ -218,14 +214,14 @@ public class MenuHandler {
             
             System.out.print("Nueva especie (actual: " + m.getEspecie()+ ", Enter para mantener): ");
             String especie = scanner.nextLine().trim();
-            if (!nombre.isEmpty()) {
-                m.setNombre(especie);
+            if (!especie.isEmpty()) {
+                m.setEspecie(especie);
             }
             
             System.out.print("Nueva raza (actual: " + m.getRaza()+ ", Enter para mantener): ");
             String raza = scanner.nextLine().trim();
-            if (!nombre.isEmpty()) {
-                m.setNombre(raza);
+            if (!raza.isEmpty()) {
+                m.setRaza(raza);
             }
 
             System.out.print("Nueva fecha de nacimiento (actual: " + m.getFechaNacimiento() + ", formato dd/MM/yyyy, Enter para mantener): ");
@@ -244,8 +240,8 @@ public class MenuHandler {
             
             System.out.print("Nuevo duenio (actual: " + m.getDuenio()+ ", Enter para mantener): ");
             String duenio = scanner.nextLine().trim();
-            if (!nombre.isEmpty()) {
-                m.setNombre(duenio);
+            if (!duenio.isEmpty()) {
+                m.setDuenio(duenio);
             }  
 
             actualizarMicrochipDeMascota(m);
@@ -361,7 +357,7 @@ public class MenuHandler {
             if (!codigo.isEmpty()) {
                 m.setCodigo(codigo);
             }    
-            System.out.print("Nueva fecha de implantacion (actual: " + m.getFechaImplantacion()+ "formato dd/MM/yyyy, Enter para mantener): ");
+            System.out.print("Nueva fecha de implantacion (actual: " + m.getFechaImplantacion()+ ", formato dd/MM/yyyy, Enter para mantener): ");
             String fechaStr = scanner.nextLine().trim();
             if (!fechaStr.isEmpty()) {
                 try {
@@ -380,7 +376,7 @@ public class MenuHandler {
                 m.setVeterinaria(veterinaria);
              }
             
-            System.out.print("Nuevas observaciones (actuales: " + m.getVeterinaria()+ ", Enter para mantener): ");
+            System.out.print("Nuevas observaciones (actuales: " + m.getObservaciones()+ ", Enter para mantener): ");
             String observaciones = scanner.nextLine().trim();
             if (!observaciones.isEmpty()) {
                 m.setObservaciones(observaciones);    
@@ -464,7 +460,7 @@ public class MenuHandler {
             if (!codigo.isEmpty()) {
                 c.setCodigo(codigo);
             }    
-            System.out.print("Nueva fecha de implantacion (actual: " + c.getFechaImplantacion()+ "formato dd/MM/yyyy, Enter para mantener): ");
+            System.out.print("Nueva fecha de implantacion (actual: " + c.getFechaImplantacion()+ ", formato dd/MM/yyyy, Enter para mantener): ");
             String fechaStr = scanner.nextLine().trim();
             if (!fechaStr.isEmpty()) {
                 try {
@@ -483,7 +479,7 @@ public class MenuHandler {
                 c.setVeterinaria(veterinaria);
              }
             
-            System.out.print("Nuevas observaciones (actuales: " + c.getVeterinaria()+ ", Enter para mantener): ");
+            System.out.print("Nuevas observaciones (actuales: " + c.getObservaciones()+ ", Enter para mantener): ");
             String observaciones = scanner.nextLine().trim();
             if (!observaciones.isEmpty()) {
                 c.setObservaciones(observaciones);    
@@ -559,8 +555,7 @@ public class MenuHandler {
      * @return Microchip nuevo (no persistido, ID=0)
      */
     private Microchip crearMicrochip() {
-        System.out.print("Codigo: ");
-        String codigo = scanner.nextLine().trim();
+        String codigo = pedirObligatorio("Codigo: ");
         System.out.print("Fecha de implantacion: (formato dd/MM/yyyy) ");        
         String fechaStr = scanner.nextLine().trim();
         java.time.LocalDate nuevaFecha = null;
@@ -632,7 +627,7 @@ public class MenuHandler {
                    m.getMicrochip().setVeterinaria(veterinaria);
                 }
                 
-                System.out.print("Nuevas observaciones (" + m.getMicrochip().getVeterinaria()+ "): ");
+                System.out.print("Nuevas observaciones (" + m.getMicrochip().getObservaciones()+ "): ");
                 String observaciones = scanner.nextLine().trim();
                 if (!observaciones.isEmpty()) {
                    m.getMicrochip().setVeterinaria(observaciones);
@@ -648,5 +643,17 @@ public class MenuHandler {
                 m.setMicrochip(nuevoMic);
             }
         }
+    }
+
+        private String pedirObligatorio(String prompt) {
+        String s;
+        do {
+            System.out.print(prompt);
+            s = scanner.nextLine().trim();
+            if (s.isEmpty()) {
+                System.out.println("Este campo es obligatorio. Intente nuevamente.");
+            }
+        } while (s.isEmpty());
+        return s;    
     }
 }

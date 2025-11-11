@@ -29,7 +29,7 @@ import java.util.List;
 public class MascotaDAO implements GenericDAO<Mascota> {
     /**
      * Query de inserción de mascota.
-     * Inserta nombre, apellido, dni y FK domicilio_id.
+     * Inserta nombre, nombre, especie, raza, fecha de nacimiento, duenio y FK microchip_id por id.
      * El id es AUTO_INCREMENT y se obtiene con RETURN_GENERATED_KEYS.
      */
     private static final String INSERT_SQL = "INSERT INTO mascotas (nombre, especie, raza, fecha_nacimiento, duenio, microchip_id) VALUES (?, ?, ?, ?, ?, ?)";
@@ -76,7 +76,7 @@ public class MascotaDAO implements GenericDAO<Mascota> {
      * Query de búsqueda por nombre o duenio con LIKE.
      * Permite búsqueda flexible: el usuario ingresa "juan" y encuentra "Juan", "Juana", etc.
      * Usa % antes y después del filtro: LIKE '%filtro%'
-     * Solo personas activas (eliminado=FALSE).
+     * Solo mascotas activas (eliminado=FALSE).
      */
     private static final String SEARCH_BY_NAME_SQL = "SELECT m.id, m.nombre, m.especie, m.raza, m.fecha_nacimiento, m.duenio, m.microchip_id, " +
             "c.id AS mc_id, c.codigo, c.fecha_implantacion, c.veterinaria" +
@@ -94,7 +94,7 @@ public class MascotaDAO implements GenericDAO<Mascota> {
      * Valida que la dependencia no sea null (fail-fast).
      *
      * @param microchipDAO DAO de microchips
-     * @throws IllegalArgumentException si domicilioDAO es null
+     * @throws IllegalArgumentException si microchipDAO es null
      */
     public MascotaDAO(MicrochipDAO microchipDAO) {
         if (microchipDAO == null) {
@@ -168,7 +168,7 @@ public class MascotaDAO implements GenericDAO<Mascota> {
             stmt.setString(1, mascota.getNombre());
             stmt.setString(2, mascota.getEspecie());
             stmt.setString(3, mascota.getRaza());
-            stmt.setDate(4, java.sql.Date.valueOf(mascota.getFechaNacimiento()));
+            stmt.setObject(4, mascota.getFechaNacimiento() != null ? java.sql.Date.valueOf(mascota.getFechaNacimiento()) : null, java.sql.Types.DATE);
             stmt.setString(5, mascota.getDuenio());
             setMicrochipId(stmt, 6, mascota.getMicrochip());
             stmt.setInt(7, mascota.getId());
@@ -187,11 +187,10 @@ public class MascotaDAO implements GenericDAO<Mascota> {
      * Validaciones:
      * - Si rowsAffected == 0 → La mascota no existe o ya está eliminada
      *
-     * IMPORTANTE: NO elimina el microchip asociado.
-     * Múltiples personas pueden compartir un domicilio.
+     * IMPORTANTE: NO elimina el microchip asociado.  
      *
      * @param id ID de la mascota a eliminar
-     * @throws SQLException Si la persona no existe o hay error de BD
+     * @throws SQLException Si la mascota no existe o hay error de BD
      */
     @Override
     public void eliminar(int id) throws Exception {
@@ -254,7 +253,7 @@ public class MascotaDAO implements GenericDAO<Mascota> {
                 mascotas.add(mapResultSetToMascota(rs));
             }
         } catch (SQLException e) {
-            throw new Exception("Error al obtener todas las personas: " + e.getMessage(), e);
+            throw new Exception("Error al obtener todas las mascotas: " + e.getMessage(), e);
         }
         return mascotas;
     }    
@@ -299,7 +298,7 @@ public class MascotaDAO implements GenericDAO<Mascota> {
     }
     
     /**
-     * Setea los parámetros de persona en un PreparedStatement.
+     * Setea los parámetros de mascota en un PreparedStatement.
      * Método auxiliar usado por insertar() e insertTx().
      *
      * Parámetros seteados:
@@ -318,7 +317,7 @@ public class MascotaDAO implements GenericDAO<Mascota> {
         stmt.setString(1, mascota.getNombre());
         stmt.setString(2, mascota.getEspecie());
         stmt.setString(3, mascota.getRaza());
-        stmt.setDate(4, java.sql.Date.valueOf(mascota.getFechaNacimiento()));
+        stmt.setObject(4, mascota.getFechaNacimiento() != null ? java.sql.Date.valueOf(mascota.getFechaNacimiento()) : null, java.sql.Types.DATE);
         stmt.setString(5, mascota.getDuenio());
         setMicrochipId(stmt, 6, mascota.getMicrochip());       
     }    
@@ -348,7 +347,7 @@ public class MascotaDAO implements GenericDAO<Mascota> {
    
     /**
      * Obtiene el ID autogenerado por la BD después de un INSERT.
-     * Asigna el ID generado al objeto persona.
+     * Asigna el ID generado al objeto mascota.
      *
      * IMPORTANTE: Este método es crítico para mantener la consistencia:
      * - Después de insertar, el objeto mascota debe tener su ID real de la BD
@@ -389,8 +388,8 @@ public class MascotaDAO implements GenericDAO<Mascota> {
      * - veterinaria → c.veterinaria
      *
      * Lógica de NULL en LEFT JOIN:
-     * - Si microchip_id es NULL → persona.microchip = null (correcto)
-     * - Si microchip_id > 0 → Se crea objeto Microchip y se asigna a persona
+     * - Si microchip_id es NULL → mascota.microchip = null (correcto)
+     * - Si microchip_id > 0 → Se crea objeto Microchip y se asigna a mascota
      *
      * @param rs ResultSet posicionado en una fila con datos de mascota y microchip
      * @return Mascota reconstruida con su microchip (si tiene)
@@ -402,16 +401,19 @@ public class MascotaDAO implements GenericDAO<Mascota> {
         mascota.setNombre(rs.getString("nombre"));
         mascota.setEspecie(rs.getString("especie"));
         mascota.setRaza(rs.getString("raza"));
-        mascota.setFechaNacimiento(rs.getDate("fecha_nacimiento").toLocalDate());
-
-        // Manejo correcto de LEFT JOIN: verificar si domicilio_id es NULL
+        java.sql.Date fn = rs.getDate("fecha_nacimiento");
+        mascota.setFechaNacimiento(fn != null ? fn.toLocalDate() : null);
+         mascota.setDuenio(rs.getString("duenio"));
+         
+        // Manejo correcto de LEFT JOIN: verificar si microchip_id es NULL
         int microchipId = rs.getInt("microchip_id");
         if (microchipId > 0 && !rs.wasNull()) {
             Microchip microchip = new Microchip();
             microchip.setId(rs.getInt("mc_id"));
             microchip.setCodigo(rs.getString("codigo"));
-            microchip.setFechaImplantacion(rs.getDate("fecha_implantacion").toLocalDate());
-            microchip.setVeterinaria("veterinaria");
+            java.sql.Date fi = rs.getDate("fecha_implantacion");
+            microchip.setFechaImplantacion(fi != null ? fi.toLocalDate() : null);
+            microchip.setVeterinaria(rs.getString("veterinaria"));
             mascota.setMicrochip(microchip);
         }
 

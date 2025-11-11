@@ -18,7 +18,7 @@ import java.util.List;
  * - Implementa GenericDAO<Microchip> para operaciones CRUD estándar
  * - Usa PreparedStatements en TODAS las consultas (protección contra SQL injection)
  * - Implementa soft delete (eliminado=TRUE, no DELETE físico)
- * - NO maneja relaciones (Domicilio es entidad independiente)
+ * - NO maneja relaciones (Microchip es entidad independiente)
  * - Soporta transacciones mediante insertTx() (recibe Connection externa)
  *
  * Diferencias con MascotaDAO:
@@ -28,7 +28,7 @@ import java.util.List;
  *
  * Patrón: DAO con try-with-resources para manejo automático de recursos JDBC
  */
-public class MicrochipDAO implements GenericDAO<Microchip> {
+public class MicrochipDAO implements IMicrochipDAO {
     
     /**
      * Query de inserción de Microchip.
@@ -65,8 +65,8 @@ public class MicrochipDAO implements GenericDAO<Microchip> {
 
     /**
      * Query para obtener todos los microchips activos.
-     * Filtra por eliminado=FALSE (solo domicilios activos).
-     * SELECT * es aceptable aquí porque Domicilio tiene solo 6 columnas.
+     * Filtra por eliminado=FALSE (solo microchips activos).
+     * SELECT * es aceptable aquí porque Microchip tiene solo 6 columnas.
      */
     private static final String SELECT_ALL_SQL = "SELECT * FROM microchips WHERE eliminado = FALSE";
    
@@ -76,7 +76,7 @@ public class MicrochipDAO implements GenericDAO<Microchip> {
      * Usado por MicrochiperviceImpl.validateCodigoUnique() para verificar unicidad.
      * Solo microchips activos (eliminado=FALSE).
      */
-    private static final String SEARCH_BY_CODIGO_SQL = "SELECT c.id, c.codigo, c.fecha_implantacion, c.veterinaria, c.observaciones, " +            
+    private static final String SEARCH_BY_CODIGO_SQL = "SELECT c.id, c.codigo, c.fecha_implantacion, c.veterinaria, c.observaciones " +            
             "FROM microchips c " +
             "WHERE c.eliminado = FALSE AND c.codigo = ?";
     /**
@@ -140,7 +140,7 @@ public class MicrochipDAO implements GenericDAO<Microchip> {
      * - Si rowsAffected == 0 → El microchip no existe o ya está eliminado
      *
      * @param microchip Microchip con los datos actualizados (id debe ser > 0)
-     * @throws SQLException Si el domicilio no existe o hay error de BD
+     * @throws SQLException Si el microchip no existe o hay error de BD
      */
     @Override
     public void actualizar(Microchip microchip) throws SQLException {
@@ -148,7 +148,8 @@ public class MicrochipDAO implements GenericDAO<Microchip> {
              PreparedStatement stmt = conn.prepareStatement(UPDATE_SQL)) {
 
             stmt.setString(1, microchip.getCodigo());
-            stmt.setDate(2, java.sql.Date.valueOf(microchip.getFechaImplantacion()));
+            stmt.setObject(2, microchip.getFechaImplantacion() != null ? 
+                    java.sql.Date.valueOf(microchip.getFechaImplantacion()) : null, java.sql.Types.DATE);
             stmt.setString(3, microchip.getVeterinaria());
             stmt.setString(4, microchip.getObservaciones());
             stmt.setInt(5, microchip.getId());
@@ -168,12 +169,12 @@ public class MicrochipDAO implements GenericDAO<Microchip> {
      * - Si rowsAffected == 0 → El microchip no existe o ya está eliminado
      *
      * ⚠️ PELIGRO: Este método NO verifica si hay mascotas asociadas.
-     * Si hay mascotas con microchip.domicilio_id apuntando a este microchip,
+     * Si hay mascotas con mascota.microchip_id apuntando a este microchip,
      * quedarán con FK huérfana (apuntando a un microchip eliminado).
      *
      * Esto puede causar:
      * - Datos inconsistentes (mascota asociada a microchip "eliminado")
-     * - Errores en LEFT JOINs que esperan domicilios activos
+     * - Errores en LEFT JOINs que esperan microchips activos
      *
      * ALTERNATIVA SEGURA: MascotaServiceImpl.eliminarMicrochipDeMascota()
      * - Primero actualiza mascota.microchip_id = NULL
@@ -268,7 +269,8 @@ public class MicrochipDAO implements GenericDAO<Microchip> {
      */
     private void setMicrochipParameters(PreparedStatement stmt, Microchip microchip) throws SQLException {
             stmt.setString(1, microchip.getCodigo());
-            stmt.setDate(2, java.sql.Date.valueOf(microchip.getFechaImplantacion()));
+            stmt.setObject(2,microchip.getFechaImplantacion() != null ? 
+                    java.sql.Date.valueOf(microchip.getFechaImplantacion()) : null, java.sql.Types.DATE);
             stmt.setString(3, microchip.getVeterinaria());
             stmt.setString(4, microchip.getObservaciones());
     }
@@ -293,7 +295,7 @@ public class MicrochipDAO implements GenericDAO<Microchip> {
             if (generatedKeys.next()) {
                 microchip.setId(generatedKeys.getInt(1));
             } else {
-                throw new SQLException("La inserción del domicilio falló, no se obtuvo ID generado");
+                throw new SQLException("La inserción del microchip falló, no se obtuvo ID generado");
             }
         }
     }
@@ -316,14 +318,16 @@ public class MicrochipDAO implements GenericDAO<Microchip> {
      * @throws SQLException Si hay error al leer columnas del ResultSet
      */
     private Microchip mapResultSetToMicrochip(ResultSet rs) throws SQLException {
+        java.sql.Date fi = rs.getDate("fecha_implantacion");
         return new Microchip(
             rs.getInt("id"),
             rs.getString("codigo"),
-            rs.getDate("fecha_implantacion").toLocalDate(),
+            fi != null ? fi.toLocalDate() : null,
             rs.getString("veterinaria"),
             rs.getString("observaciones")
         );
     } 
+    
     
     public Microchip buscarPorCodigo(String codigo) throws SQLException {
         if (codigo == null || codigo.trim().isEmpty()) {

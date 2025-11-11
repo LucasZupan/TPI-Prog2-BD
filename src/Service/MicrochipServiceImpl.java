@@ -1,6 +1,7 @@
 package Service;
 
 import Dao.GenericDAO;
+import Dao.IMicrochipDAO;
 import Models.Microchip;
 import java.util.List;
 
@@ -22,9 +23,8 @@ public class MicrochipServiceImpl implements GenericService<Microchip>{
      * DAO para acceso a datos de microchip.
      * Inyectado en el constructor (Dependency Injection).   
      */
-    private final GenericDAO<Microchip> microchipDAO;
+    private final IMicrochipDAO  microchipDAO;   
     
-    private final Microchip microchip2DAO;
 
     /**
      * Constructor con inyección de dependencias.
@@ -33,16 +33,9 @@ public class MicrochipServiceImpl implements GenericService<Microchip>{
      * @param microchipDAO DAO de microchips (normalmente MicrochipDAO)
      * @throws IllegalArgumentException si microchipDAO es null
      */
-    public MicrochipServiceImpl(GenericDAO<Microchip> microchipDAO, Microchip microchip2DAO) {
-        if (microchipDAO == null) {
-            throw new IllegalArgumentException("MicrochipDAO no puede ser null");
-        }
-        if (microchip2DAO == null) {
-        throw new IllegalArgumentException("Microchip2DAO no puede ser null");
-    }
+    public MicrochipServiceImpl(IMicrochipDAO microchipDAO) {
+        if (microchipDAO == null) throw new IllegalArgumentException("MicrochipDAO no puede ser null");
         this.microchipDAO = microchipDAO;
-        this.microchip2DAO = microchip2DAO;
-        
     }
     
     /**
@@ -164,7 +157,7 @@ public class MicrochipServiceImpl implements GenericService<Microchip>{
      * @throws Exception Si hay error de BD al buscar
      */
     private void validateCodigoUnique(String codigo, Integer microchipId) throws Exception {
-        Microchip existente = microchip2DAO.buscarPorCodigo(codigo);
+        Microchip existente = microchipDAO.buscarPorCodigo(codigo);
         if (existente != null) {
             // Existe un microchip con ese Codigo
             if (microchipId == null || existente.getId() != microchipId) {

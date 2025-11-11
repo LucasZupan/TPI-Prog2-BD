@@ -102,8 +102,4 @@ public class Microchip extends Base {
                 ", observaciones='" + observaciones + '\'' +
                 '}';
     }
-
-    public Microchip buscarPorCodigo(String codigo) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
 }

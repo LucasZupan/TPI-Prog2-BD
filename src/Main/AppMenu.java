@@ -196,7 +196,7 @@ public class AppMenu {
         MicrochipDAO microchipDAO = new MicrochipDAO();
         Microchip microchip = new Microchip();
         MascotaDAO mascotaDAO = new MascotaDAO(microchipDAO);
-        MicrochipServiceImpl microchipService = new MicrochipServiceImpl(microchipDAO, microchip);
+        MicrochipServiceImpl microchipService = new MicrochipServiceImpl(microchipDAO);
         return new MascotaServiceImpl(mascotaDAO, microchipService);
     }
 }
