@@ -59,7 +59,7 @@ public class MascotaDAO implements GenericDAO<Mascota> {
      */
     private static final String SELECT_BY_ID_SQL = "SELECT m.id, m.nombre, m.especie, m.raza, m.fecha_nacimiento, m.duenio, m.microchip_id, " +
             "c.id AS mc_id, c.codigo, c.fecha_implantacion, c.veterinaria" +
-            "FROM mascotas m LEFT JOIN microchips c ON m.microchip_id = c.id " +
+            " FROM mascotas m LEFT JOIN microchips c ON m.microchip_id = c.id " +
             "WHERE m.id = ? AND m.eliminado = FALSE";   
     
     /**
@@ -69,7 +69,7 @@ public class MascotaDAO implements GenericDAO<Mascota> {
      */
     private static final String SELECT_ALL_SQL = "SELECT m.id, m.nombre, m.especie, m.raza, m.fecha_nacimiento, m.duenio, m.microchip_id, " +
             "c.id AS mc_id, c.codigo, c.fecha_implantacion, c.veterinaria" +
-            "FROM mascotas m LEFT JOIN microchips c ON m.microchip_id = c.id " +
+            " FROM mascotas m LEFT JOIN microchips c ON m.microchip_id = c.id " +
             "WHERE m.eliminado = FALSE";
  
     /**
@@ -80,7 +80,7 @@ public class MascotaDAO implements GenericDAO<Mascota> {
      */
     private static final String SEARCH_BY_NAME_SQL = "SELECT m.id, m.nombre, m.especie, m.raza, m.fecha_nacimiento, m.duenio, m.microchip_id, " +
             "c.id AS mc_id, c.codigo, c.fecha_implantacion, c.veterinaria" +
-            "FROM mascotas m LEFT JOIN microchips c ON m.microchip_id = c.id " +
+            " FROM mascotas m LEFT JOIN microchips c ON m.microchip_id = c.id " +
             "WHERE m.eliminado = FALSE AND (m.nombre LIKE ? OR m.duenio LIKE ?)";
   
     /**
