@@ -258,342 +258,394 @@ public class MenuHandler {
     }
 
     /**
-     * Opción 4: Eliminar persona (soft delete).
+     * Opción 4: Eliminar mascota (soft delete).
      *
      * Flujo:
-     * 1. Solicita ID de la persona
-     * 2. Invoca personaService.eliminar() que:
-     *    - Marca persona.eliminado = TRUE
-     *    - NO elimina el domicilio asociado (RN-037)
+     * 1. Solicita ID de la mascota
+     * 2. Invoca mascotaService.eliminar() que:
+     *    - Marca mascota.eliminado = TRUE
+     *    - NO elimina el microchip asociado
      *
-     * IMPORTANTE: El domicilio NO se elimina porque:
-     * - Múltiples personas pueden compartir un domicilio
-     * - Si se eliminara, afectaría a otras personas
-     *
-     * Si se quiere eliminar también el domicilio:
-     * - Usar opción 10: "Eliminar domicilio de una persona" (eliminarDomicilioPorPersona)
-     * - Esa opción primero desasocia el domicilio, luego lo elimina (seguro)
+     * Si se quiere eliminar también el microchip:
+     * - Usar opción 10: "Eliminar microchip de una mascota" (eliminarMicrochipPorMascota)
+     * - Esa opción primero desasocia el microchip, luego lo elimina (seguro)
      */
-    public void eliminarPersona() {
+    public void eliminarMascota() {
         try {
-            System.out.print("ID de la persona a eliminar: ");
+            System.out.print("ID de la mascota a eliminar: ");
             int id = Integer.parseInt(scanner.nextLine());
-            personaService.eliminar(id);
-            System.out.println("Persona eliminada exitosamente.");
+            mascotaService.eliminar(id);
+            System.out.println("Mascota eliminada exitosamente.");
         } catch (Exception e) {
-            System.err.println("Error al eliminar persona: " + e.getMessage());
+            System.err.println("Error al eliminar mascota: " + e.getMessage());
         }
     }
 
     /**
-     * Opción 5: Crear domicilio independiente (sin asociar a persona).
+     * Opción 5: Crear microchip independiente (sin asociar a mascota).
      *
      * Flujo:
-     * 1. Llama a crearDomicilio() para capturar calle y número
-     * 2. Invoca domicilioService.insertar() que:
-     *    - Valida calle y número obligatorios (RN-023)
+     * 1. Llama a crearMicrochip() para capturar codigo
+     * 2. Invoca microchipervice.insertar() que:
+     *    - Valida codigo obligatorio
      *    - Inserta en BD y asigna ID autogenerado
      * 3. Muestra ID generado
      *
      * Uso típico:
-     * - Crear domicilio que luego se asignará a varias personas (opción 7)
-     * - Pre-cargar domicilios en la BD
+     * - Crear microchip que luego se asignará a una mascota (opción 7)
+     * - Pre-cargar microchipz en la BD
      */
-    public void crearDomicilioIndependiente() {
+    public void crearMicrochipIndependiente() {
         try {
-            Domicilio domicilio = crearDomicilio();
-            personaService.getDomicilioService().insertar(domicilio);
-            System.out.println("Domicilio creado exitosamente con ID: " + domicilio.getId());
+            Microchip microchip = crearMicrochip();
+            mascotaService.getMicrochipService().insertar(microchip);
+            System.out.println("Microchip creado exitosamente con ID: " + microchip.getId());
         } catch (Exception e) {
-            System.err.println("Error al crear domicilio: " + e.getMessage());
+            System.err.println("Error al crear microchip: " + e.getMessage());
         }
     }
 
     /**
-     * Opción 6: Listar todos los domicilios activos.
+     * Opción 6: Listar todos los microchips activos.
      *
-     * Muestra: ID, Calle Número
+     * Muestra: codigo, fecha_implantacion, veterinaria
      *
      * Uso típico:
-     * - Ver domicilios disponibles antes de asignar a persona (opción 7)
-     * - Consultar ID de domicilio para actualizar (opción 9) o eliminar (opción 8)
+     * - Ver microchips disponibles antes de asignar a mascota (opción 7)
+     * - Consultar ID de microchip para actualizar (opción 9) o eliminar (opción 8)
      *
-     * Nota: Solo muestra domicilios con eliminado=FALSE (soft delete).
+     * Nota: Solo muestra microchips con eliminado=FALSE (soft delete).
      */
-    public void listarDomicilios() {
+    public void listarMicrochips() {
         try {
-            List<Domicilio> domicilios = personaService.getDomicilioService().getAll();
-            if (domicilios.isEmpty()) {
-                System.out.println("No se encontraron domicilios.");
+            List<Microchip> microchips = mascotaService.getMicrochipService().getAll();
+            if (microchips.isEmpty()) {
+                System.out.println("No se encontraron microchips.");
                 return;
             }
-            for (Domicilio d : domicilios) {
-                System.out.println("ID: " + d.getId() + ", " + d.getCalle() + " " + d.getNumero());
+            for (Microchip m : microchips) {
+                System.out.println("ID: " + m.getId() + ", codigo:" + m.getCodigo() +
+                        ", fecha de implantacion: " + m.getFechaImplantacion() + 
+                        ", veterinaria: " + m.getVeterinaria());
             }
         } catch (Exception e) {
-            System.err.println("Error al listar domicilios: " + e.getMessage());
+            System.err.println("Error al listar microchips: " + e.getMessage());
         }
     }
 
     /**
-     * Opción 9: Actualizar domicilio por ID.
+     * Opción 7: Actualizar microchip por ID.
      *
      * Flujo:
-     * 1. Solicita ID del domicilio
-     * 2. Obtiene domicilio actual de la BD
+     * 1. Solicita ID del microchip
+     * 2. Obtiene microchip actual de la BD
      * 3. Muestra valores actuales y permite actualizar:
-     *    - Calle (Enter para mantener actual)
-     *    - Número (Enter para mantener actual)
-     * 4. Invoca domicilioService.actualizar()
-     *
-     * ⚠️ IMPORTANTE (RN-040): Si varias personas comparten este domicilio,
-     * la actualización los afectará a TODAS.
-     *
-     * Ejemplo:
-     * - Domicilio ID=1 "Av. Siempreviva 742" está asociado a 3 personas
-     * - Si se actualiza a "Calle Nueva 123", las 3 personas tendrán la nueva dirección
-     *
-     * Esto es CORRECTO para familias que viven juntas.
-     * Si se quiere cambiar la dirección de UNA sola persona:
-     * 1. Crear nuevo domicilio (opción 5)
-     * 2. Asignar a la persona (opción 7)
+     *    - Codigo (Enter para mantener actual)
+     *    - Fecha Implantacion (Enter para mantener actual)
+     *    - Veterinaria (Enter para mantener actual)
+     *    - Observaciones (Enter para mantener actual)
+     * 4. Invoca microchipService.actualizar()     
      */
-    public void actualizarDomicilioPorId() {
+    public void actualizarMicrochipPorId() {
         try {
             System.out.print("ID del domicilio a actualizar: ");
             int id = Integer.parseInt(scanner.nextLine());
-            Domicilio d = personaService.getDomicilioService().getById(id);
+            Microchip m = mascotaService.getMicrochipService().getById(id);
 
-            if (d == null) {
-                System.out.println("Domicilio no encontrado.");
+            if (m == null) {
+                System.out.println("Microchip no encontrado.");
                 return;
             }
-
-            System.out.print("Nueva calle (actual: " + d.getCalle() + ", Enter para mantener): ");
-            String calle = scanner.nextLine().trim();
-            if (!calle.isEmpty()) {
-                d.setCalle(calle);
+            System.out.print("Nuevo codigo (actual: " + m.getCodigo()+ ", Enter para mantener): ");
+            String codigo = scanner.nextLine().trim();
+            if (!codigo.isEmpty()) {
+                m.setCodigo(codigo);
+            }    
+            System.out.print("Nueva fecha de implantacion (actual: " + m.getFechaImplantacion()+ "formato dd/MM/yyyy, Enter para mantener): ");
+            String fechaStr = scanner.nextLine().trim();
+            if (!fechaStr.isEmpty()) {
+                try {
+                    java.time.LocalDate nuevaFecha = java.time.LocalDate.parse(
+                        fechaStr, java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                    );
+                    m.setFechaImplantacion(nuevaFecha);
+                } catch (java.time.format.DateTimeParseException e) {
+                    System.out.println("Fecha inválida. Se mantiene la anterior.");
+                }
             }
-
-            System.out.print("Nuevo numero (actual: " + d.getNumero() + ", Enter para mantener): ");
-            String numero = scanner.nextLine().trim();
-            if (!numero.isEmpty()) {
-                d.setNumero(numero);
-            }
-
-            personaService.getDomicilioService().actualizar(d);
-            System.out.println("Domicilio actualizado exitosamente.");
+            
+            System.out.print("Nueva veterinaria (actual: " + m.getVeterinaria()+ ", Enter para mantener): ");
+            String veterinaria = scanner.nextLine().trim();
+            if (!veterinaria.isEmpty()) {
+                m.setVeterinaria(veterinaria);
+             }
+            
+            System.out.print("Nuevas observaciones (actuales: " + m.getVeterinaria()+ ", Enter para mantener): ");
+            String observaciones = scanner.nextLine().trim();
+            if (!observaciones.isEmpty()) {
+                m.setObservaciones(observaciones);    
+             }
+            
+            mascotaService.getMicrochipService().actualizar(m);
+            System.out.println("Microchip actualizado exitosamente.");
         } catch (Exception e) {
-            System.err.println("Error al actualizar domicilio: " + e.getMessage());
+            System.err.println("Error al actualizar microchip: " + e.getMessage());
         }
     }
 
     /**
-     * Opción 8: Eliminar domicilio por ID (PELIGROSO - soft delete directo).
+     * Opción 8: Eliminar microchip por ID (PELIGROSO - soft delete directo).
      *
-     * ⚠️ PELIGRO (RN-029): Este método NO verifica si hay personas asociadas.
-     * Si hay personas con FK a este domicilio, quedarán con referencia huérfana.
+     * Este método NO verifica si hay mascota asociada.
+     * Si hay mascota con FK a este microchip, quedará con referencia huérfana.
      *
      * Flujo:
-     * 1. Solicita ID del domicilio
-     * 2. Invoca domicilioService.eliminar() directamente
-     * 3. Marca domicilio.eliminado = TRUE
+     * 1. Solicita ID del microchip
+     * 2. Invoca microchipService.eliminar() directamente
+     * 3. Marca microchip.eliminado = TRUE
      *
      * Problemas potenciales:
-     * - Personas con domicilio_id apuntando a domicilio "eliminado"
+     * - Mascota con microchip_id apuntando a microchip "eliminado"
      * - Datos inconsistentes en la BD
      *
-     * ALTERNATIVA SEGURA: Opción 10 (eliminarDomicilioPorPersona)
-     * - Primero desasocia domicilio de la persona (domicilio_id = NULL)
-     * - Luego elimina el domicilio
+     * ALTERNATIVA SEGURA: Opción 10 (eliminarMicrochipPorMascota)
+     * - Primero desasocia microchip de la mascota (microchip_id = NULL)
+     * - Luego elimina el microchip
      * - Garantiza consistencia
      *
-     * Uso válido:
-     * - Cuando se está seguro de que el domicilio NO tiene personas asociadas
-     * - Limpiar domicilios creados por error
+     * Uso válido: 
+     * - Limpiar microchips creados por error
      */
-    public void eliminarDomicilioPorId() {
+    public void eliminarMicrochipPorId() {
         try {
-            System.out.print("ID del domicilio a eliminar: ");
+            System.out.print("ID del microchip a eliminar: ");
             int id = Integer.parseInt(scanner.nextLine());
-            personaService.getDomicilioService().eliminar(id);
-            System.out.println("Domicilio eliminado exitosamente.");
+            mascotaService.getMicrochipService().eliminar(id);
+            System.out.println("Microchip eliminado exitosamente.");
         } catch (Exception e) {
-            System.err.println("Error al eliminar domicilio: " + e.getMessage());
+            System.err.println("Error al eliminar microchip: " + e.getMessage());
         }
     }
 
     /**
-     * Opción 7: Actualizar domicilio de una persona específica.
+     * Opción 9: Actualizar microchip de una mascota específica.
      *
      * Flujo:
-     * 1. Solicita ID de la persona
-     * 2. Verifica que la persona exista y tenga domicilio
-     * 3. Muestra valores actuales del domicilio
-     * 4. Permite actualizar calle y número
-     * 5. Invoca domicilioService.actualizar()
-     *
-     * ⚠️ IMPORTANTE (RN-040): Esta operación actualiza el domicilio compartido.
-     * Si otras personas tienen el mismo domicilio, también se les actualizará.
-     *
-     * Diferencia con opción 9 (actualizarDomicilioPorId):
-     * - Esta opción: Busca persona primero, luego actualiza su domicilio
-     * - Opción 9: Actualiza domicilio directamente por ID
-     *
-     * Ambas tienen el mismo efecto (RN-040): afectan a TODAS las personas
-     * que comparten el domicilio.
+     * 1. Solicita ID de la mascota
+     * 2. Verifica que la mascota exista y tenga microchip
+     * 3. Muestra valores actuales del microchip
+     * 4. Permite actualizar codigo, fecha de implantacion, veterinaria, observaciones
+     * 5. Invoca microchipService.actualizar()
+     * 
+     * Diferencia con opción 8 (actualizarMicrochipPorId):
+     * - Esta opción: Busca mascota primero, luego actualiza su microchip
+     * - Opción 8: Actualiza microchip directamente por ID
      */
-    public void actualizarDomicilioPorPersona() {
+    public void actualizarMicrochipPorMascota() {
         try {
-            System.out.print("ID de la persona cuyo domicilio desea actualizar: ");
-            int personaId = Integer.parseInt(scanner.nextLine());
-            Persona p = personaService.getById(personaId);
+            System.out.print("ID de la mascota cuyo microchip desea actualizar: ");
+            int mascotaId = Integer.parseInt(scanner.nextLine());
+            Mascota m = mascotaService.getById(mascotaId);
 
-            if (p == null) {
-                System.out.println("Persona no encontrada.");
+            if (m == null) {
+                System.out.println("Mascota no encontrada.");
                 return;
             }
 
-            if (p.getDomicilio() == null) {
-                System.out.println("La persona no tiene domicilio asociado.");
+            if (m.getMicrochip()== null) {
+                System.out.println("La mascota no tiene microchip asociado.");
                 return;
             }
 
-            Domicilio d = p.getDomicilio();
-            System.out.print("Nueva calle (" + d.getCalle() + "): ");
-            String calle = scanner.nextLine().trim();
-            if (!calle.isEmpty()) {
-                d.setCalle(calle);
+            Microchip c = m.getMicrochip();
+            
+            System.out.print("Nuevo codigo (actual: " + c.getCodigo()+ ", Enter para mantener): ");
+            String codigo = scanner.nextLine().trim();
+            if (!codigo.isEmpty()) {
+                c.setCodigo(codigo);
+            }    
+            System.out.print("Nueva fecha de implantacion (actual: " + c.getFechaImplantacion()+ "formato dd/MM/yyyy, Enter para mantener): ");
+            String fechaStr = scanner.nextLine().trim();
+            if (!fechaStr.isEmpty()) {
+                try {
+                    java.time.LocalDate nuevaFecha = java.time.LocalDate.parse(
+                        fechaStr, java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                    );
+                    c.setFechaImplantacion(nuevaFecha);
+                } catch (java.time.format.DateTimeParseException e) {
+                    System.out.println("Fecha inválida. Se mantiene la anterior.");
+                }
             }
-
-            System.out.print("Nuevo numero (" + d.getNumero() + "): ");
-            String numero = scanner.nextLine().trim();
-            if (!numero.isEmpty()) {
-                d.setNumero(numero);
-            }
-
-            personaService.getDomicilioService().actualizar(d);
-            System.out.println("Domicilio actualizado exitosamente.");
+            
+            System.out.print("Nueva veterinaria (actual: " + c.getVeterinaria()+ ", Enter para mantener): ");
+            String veterinaria = scanner.nextLine().trim();
+            if (!veterinaria.isEmpty()) {
+                c.setVeterinaria(veterinaria);
+             }
+            
+            System.out.print("Nuevas observaciones (actuales: " + c.getVeterinaria()+ ", Enter para mantener): ");
+            String observaciones = scanner.nextLine().trim();
+            if (!observaciones.isEmpty()) {
+                c.setObservaciones(observaciones);    
+             }
+            
+            mascotaService.getMicrochipService().actualizar(c);
+            System.out.println("Microchip actualizado exitosamente.");
         } catch (Exception e) {
-            System.err.println("Error al actualizar domicilio: " + e.getMessage());
-        }
+            System.err.println("Error al actualizar microchip: " + e.getMessage());
+        }  
     }
 
     /**
-     * Opción 10: Eliminar domicilio de una persona (MÉTODO SEGURO - RN-029 solucionado).
+     * Opción 10: Eliminar microchip de una mascota (MÉTODO SEGURO).
      *
      * Flujo transaccional SEGURO:
-     * 1. Solicita ID de la persona
-     * 2. Verifica que la persona exista y tenga domicilio
-     * 3. Invoca personaService.eliminarDomicilioDePersona() que:
-     *    a. Desasocia domicilio de persona (persona.domicilio = null)
-     *    b. Actualiza persona en BD (domicilio_id = NULL)
-     *    c. Elimina el domicilio (ahora no hay FKs apuntando a él)
+     * 1. Solicita ID de la mascota
+     * 2. Verifica que la mascota exista y tenga microchip
+     * 3. Invoca mascotaService.eliminarMicrochipDeMascota() que:
+     *    a. Desasocia microchip de mascota (mascota.domicilio = null)
+     *    b. Actualiza mascota en BD (microchip_id = NULL)
+     *    c. Elimina el microchip (ahora no hay FKs apuntando a él)
      *
-     * Ventaja sobre opción 8 (eliminarDomicilioPorId):
+     * Ventaja sobre opción 8 (eliminarMicrochipPorId):
      * - Garantiza consistencia: Primero actualiza FK, luego elimina
      * - NO deja referencias huérfanas
-     * - Implementa eliminación segura recomendada en RN-029
+     * - Implementa eliminación segura.
      *
-     * Este es el método RECOMENDADO para eliminar domicilios en producción.
+     * Este es el método RECOMENDADO para eliminar microchips en producción.
      */
-    public void eliminarDomicilioPorPersona() {
+    public void eliminarMicrochipPorMascota() {
         try {
-            System.out.print("ID de la persona cuyo domicilio desea eliminar: ");
-            int personaId = Integer.parseInt(scanner.nextLine());
-            Persona p = personaService.getById(personaId);
+            System.out.print("ID de la mascota cuyo microchip desea eliminar: ");
+            int mascotaId = Integer.parseInt(scanner.nextLine());
+            Mascota m = mascotaService.getById(mascotaId);
 
-            if (p == null) {
-                System.out.println("Persona no encontrada.");
+            if (m == null) {
+                System.out.println("Mascota no encontrada.");
                 return;
             }
 
-            if (p.getDomicilio() == null) {
-                System.out.println("La persona no tiene domicilio asociado.");
+            if (m.getMicrochip()== null) {
+                System.out.println("La mascota no tiene microchip asociado.");
                 return;
             }
 
-            int domicilioId = p.getDomicilio().getId();
-            personaService.eliminarDomicilioDePersona(personaId, domicilioId);
-            System.out.println("Domicilio eliminado exitosamente y referencia actualizada.");
+            int microchipId = m.getMicrochip().getId();
+            mascotaService.eliminarMicrochipDeMascota(mascotaId, microchipId);
+            System.out.println("Microchip eliminado exitosamente y referencia actualizada.");
         } catch (Exception e) {
-            System.err.println("Error al eliminar domicilio: " + e.getMessage());
+            System.err.println("Error al eliminar microchip: " + e.getMessage());
         }
     }
 
     /**
-     * Método auxiliar privado: Crea un objeto Domicilio capturando calle y número.
+     * Método auxiliar privado: Crea un objeto Microchip capturando codigo, fecha de implantacion, veterinaria, observaciones.
      *
      * Flujo:
-     * 1. Solicita calle (con trim)
-     * 2. Solicita número (con trim)
-     * 3. Crea objeto Domicilio con ID=0 (será asignado por BD al insertar)
+     * 1. Solicita codigo (con trim)
+     * 2. Solicita fecha de implantacion
+     * 1. Solicita veterinaria (con trim)
+     * 1. Solicita observaciones (con trim)
+     * 3. Crea objeto Microchip con ID=0 (será asignado por BD al insertar)
      *
      * Usado por:
-     * - crearPersona(): Para agregar domicilio al crear persona
-     * - crearDomicilioIndependiente(): Para crear domicilio sin asociar
-     * - actualizarDomicilioDePersona(): Para agregar domicilio a persona sin domicilio
+     * - crearMascota(): Para agregar microchip al crear persona
+     * - crearMicrochipIndependiente(): Para crear microchip sin asociar
+     * - actualizarMicrochipDeMascota(): Para agregar microchip a mascota sin microchip
      *
      * Nota: NO persiste en BD, solo crea el objeto en memoria.
-     * El caller es responsable de insertar el domicilio.
+     * El caller es responsable de insertar el microchip.
      *
-     * @return Domicilio nuevo (no persistido, ID=0)
+     * @return Microchip nuevo (no persistido, ID=0)
      */
-    private Domicilio crearDomicilio() {
-        System.out.print("Calle: ");
-        String calle = scanner.nextLine().trim();
-        System.out.print("Numero: ");
-        String numero = scanner.nextLine().trim();
-        return new Domicilio(0, calle, numero);
-    }
+    private Microchip crearMicrochip() {
+        System.out.print("Codigo: ");
+        String codigo = scanner.nextLine().trim();
+        System.out.print("Fecha de implantacion: (formato dd/MM/yyyy) ");        
+        String fechaStr = scanner.nextLine().trim();
+        java.time.LocalDate nuevaFecha = null;
+            if (!fechaStr.isEmpty()) {
+                try {
+                    nuevaFecha = java.time.LocalDate.parse(
+                        fechaStr, java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"));             
+                } catch (java.time.format.DateTimeParseException e) {
+                    System.out.println("Fecha inválida. No se inicializa");
+                }
+            }
+        System.out.print("Veterinaria: ");
+        String veterinaria = scanner.nextLine().trim();
+        System.out.print("Observaciones: ");
+        String observaciones = scanner.nextLine().trim();            
+            
+        return new Microchip(0, codigo, nuevaFecha, veterinaria, observaciones);  
+    }    
 
     /**
-     * Método auxiliar privado: Maneja actualización de domicilio dentro de actualizar persona.
+     * Método auxiliar privado: Maneja actualización de microchip dentro de actualizar mascota.
      *
      * Casos:
-     * 1. Persona TIENE domicilio:
+     * 1. Mascota TIENE microchip:
      *    - Pregunta si desea actualizar
-     *    - Si sí, permite cambiar calle y número (Enter para mantener)
-     *    - Actualiza domicilio en BD (afecta a TODAS las personas que lo comparten)
+     *    - Si sí, permite cambiar codigo, fecha de implantacion, veterinaria, observaciones (Enter para mantener)
+     *    - Actualiza microchip en BD
      *
-     * 2. Persona NO TIENE domicilio:
+     * 2. Mascota NO TIENE microchip:
      *    - Pregunta si desea agregar uno
-     *    - Si sí, captura calle y número con crearDomicilio()
-     *    - Inserta domicilio en BD (obtiene ID)
-     *    - Asocia domicilio a la persona
+     *    - Si sí, captura codigo, fecha de implantacion, veterinaria, observaciones con crearMicrochip()
+     *    - Inserta microchip en BD (obtiene ID)
+     *    - Asocia microchip a la persona
      *
-     * Usado exclusivamente por actualizarPersona() (opción 3).
+     * Usado exclusivamente por actualizarMascota() (opción 3).
      *
-     * IMPORTANTE: El parámetro Persona se modifica in-place (setDomicilio).
-     * El caller debe invocar personaService.actualizar() después para persistir.
+     * IMPORTANTE: El parámetro Mascota se modifica in-place (setMicrochip).
+     * El caller debe invocar mascotaService.actualizar() después para persistir.
      *
-     * @param p Persona a la que se le actualizará/agregará domicilio
-     * @throws Exception Si hay error al insertar/actualizar domicilio
+     * @param m Mascota la que se le actualizará/agregará microchip
+     * @throws Exception Si hay error al insertar/actualizar microchip
      */
-    private void actualizarDomicilioDePersona(Persona p) throws Exception {
-        if (p.getDomicilio() != null) {
-            System.out.print("¿Desea actualizar el domicilio? (s/n): ");
+    private void actualizarMicrochipDeMascota(Mascota m) throws Exception {
+        if (m.getMicrochip()!= null) {
+            System.out.print("¿Desea actualizar el microchip? (s/n): ");
             if (scanner.nextLine().equalsIgnoreCase("s")) {
-                System.out.print("Nueva calle (" + p.getDomicilio().getCalle() + "): ");
-                String calle = scanner.nextLine().trim();
-                if (!calle.isEmpty()) {
-                    p.getDomicilio().setCalle(calle);
+                System.out.print("Nuevo codigo (" + m.getMicrochip().getCodigo() + "): ");
+                String codigo = scanner.nextLine().trim();
+                if (!codigo.isEmpty()) {
+                    m.getMicrochip().setCodigo(codigo);
                 }
-
-                System.out.print("Nuevo numero (" + p.getDomicilio().getNumero() + "): ");
-                String numero = scanner.nextLine().trim();
-                if (!numero.isEmpty()) {
-                    p.getDomicilio().setNumero(numero);
+                
+            System.out.print("Nueva fecha de implantación (" + m.getMicrochip().getFechaImplantacion() + ", formato dd/MM/yyyy): ");
+            String fechaStr = scanner.nextLine().trim();
+            if (!fechaStr.isEmpty()) {
+                try {
+                    java.time.LocalDate nuevaFecha = java.time.LocalDate.parse(
+                        fechaStr, java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                    );
+                    m.getMicrochip().setFechaImplantacion(nuevaFecha);
+                } catch (java.time.format.DateTimeParseException e) {
+                    System.out.println("Fecha inválida. Se mantiene la anterior.");
                 }
+            }
+            
+                System.out.print("Nueva veterinaria (" + m.getMicrochip().getVeterinaria()+ "): ");
+                String veterinaria = scanner.nextLine().trim();
+                if (!veterinaria.isEmpty()) {
+                   m.getMicrochip().setVeterinaria(veterinaria);
+                }
+                
+                System.out.print("Nuevas observaciones (" + m.getMicrochip().getVeterinaria()+ "): ");
+                String observaciones = scanner.nextLine().trim();
+                if (!observaciones.isEmpty()) {
+                   m.getMicrochip().setVeterinaria(observaciones);
+                }          
 
-                personaService.getDomicilioService().actualizar(p.getDomicilio());
+                mascotaService.getMicrochipService().actualizar(m.getMicrochip());
             }
         } else {
-            System.out.print("La persona no tiene domicilio. ¿Desea agregar uno? (s/n): ");
+            System.out.print("La mascota no tiene microchip. ¿Desea agregar uno? (s/n): ");
             if (scanner.nextLine().equalsIgnoreCase("s")) {
-                Domicilio nuevoDom = crearDomicilio();
-                personaService.getDomicilioService().insertar(nuevoDom);
-                p.setDomicilio(nuevoDom);
+                Microchip nuevoMic = crearMicrochip();
+                mascotaService.getMicrochipService().insertar(nuevoMic);
+                m.setMicrochip(nuevoMic);
             }
         }
     }
