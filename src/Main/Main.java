@@ -1,5 +1,8 @@
 package Main;
 
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+
 /**
  * Punto de entrada alternativo de la aplicación.
  * Clase simple que delega inmediatamente a AppMenu.
@@ -38,6 +41,10 @@ public class Main {
      * @param args Argumentos de línea de comandos (no usados)
      */
     public static void main(String[] args) {
+         try {
+        System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
+        System.setErr(new PrintStream(System.err, true, StandardCharsets.UTF_8));
+    } catch (Exception ignored) {}
         AppMenu app = new AppMenu();
         app.run();
     }

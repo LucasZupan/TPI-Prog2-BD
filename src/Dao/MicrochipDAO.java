@@ -115,7 +115,7 @@ public class MicrochipDAO implements IMicrochipDAO {
      * NO crea nueva conexión, recibe una Connection externa.
      * NO cierra la conexión (responsabilidad del caller con TransactionManager).
      *
-     * Usado por: (Actualmente no usado, pero disponible para transacciones futuras)
+     * Usado por: Prueba para chequear rollback
      * - Operaciones que requieren múltiples inserts coordinados
      * - Rollback automático si alguna operación falla
      *
@@ -128,7 +128,7 @@ public class MicrochipDAO implements IMicrochipDAO {
         try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
             setMicrochipParameters(stmt, microchip);
             stmt.executeUpdate();
-            setGeneratedId(stmt, microchip);
+            setGeneratedId(stmt, microchip); 
         }
     }
     

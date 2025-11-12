@@ -659,4 +659,70 @@ public class MenuHandler {
         } while (s.isEmpty());
         return s;    
     }
+        
+        
+    /**
+     * Opción 11: Crear mascota con microchip en una Tx
+     * 
+     * Crea una nueva mascota con microchip, sin validar el campo de dueño.
+     *
+     * Esta función se utiliza para la demostración de rollback transaccional.
+     * Permite ingresar un dueño vacío, lo que provoca un error SQL debido a la
+     * restricción CHECK (chk_duenio_no_vacio) definida en la base de datos.
+     *
+     * Flujo:
+     * 1. Solicita al usuario los datos de la mascota.
+     * 2. Permite cargar un microchip asociado.
+     * 3. Llama al servicio MascotaServiceImpl.insertarConTransaccionDemoSinValidar().
+     * 4. Si la base de datos lanza una excepción (por ejemplo, por dueño vacío),
+     *    la transacción se revierte y no se guarda ni el microchip ni la mascota.
+     *
+     * Objetivo: demostrar que el TransactionManager realiza rollback automático
+     * ante un fallo real de integridad en la base de datos.
+     *
+     * Manejo de errores:
+     * - Cualquier excepción durante el proceso se muestra en consola con prefijo "Error al crear mascota".
+ */
+    public void crearMascotaSinValidar() {
+        try {
+            
+        
+        System.out.println("PRUEBA DE TRANSACCIÓN (ROLLBACK DEMO)");
+        System.out.println("Primero se ingresarán los datos del Microchip.");
+        System.out.println("Luego se pedirá la información de la Mascota.");
+        System.out.println("Si ocurre un error en la mascota, se revertirá todo (rollback).");
+              
+        Microchip microchip = null;    
+        microchip = crearMicrochip();  
+        
+        System.out.print("Nombre: ");
+        String nombre = scanner.nextLine().trim();
+        System.out.print("Especie: ");
+        String especie = scanner.nextLine().trim();
+        System.out.print("Raza: ");
+        String raza = scanner.nextLine().trim();
+        if (raza.isEmpty()) raza = null;
+        System.out.print("Fecha de nacimiento (dd/MM/yyyy, vacío para omitir): ");
+        String fn = scanner.nextLine().trim();
+        java.time.LocalDate fechaNacimiento = null;
+        if (!fn.isEmpty()) {
+            try {
+                fechaNacimiento = java.time.LocalDate.parse(
+                    fn, java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                );
+            } catch (java.time.format.DateTimeParseException e) {
+                System.out.println("Fecha inválida. Se guardará sin fecha de nacimiento.");
+            }
+        }
+         System.out.print("Duenio: ");
+         String duenio = scanner.nextLine().trim();
+
+            Mascota mascota = new Mascota(0, nombre, especie, raza, fechaNacimiento, duenio, microchip);
+            mascota.setMicrochip(microchip);
+            mascotaService.insertarConTransaccionDemoSinValidar(mascota);
+            System.out.println("Mascota creada exitosamente con ID: " + mascota.getId());
+        } catch (Exception e) {
+            System.out.println("Error al crear mascota: " + e.getMessage());
+        }
+    }
 }

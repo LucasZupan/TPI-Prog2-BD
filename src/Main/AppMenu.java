@@ -153,6 +153,7 @@ public class AppMenu {
             case 8 -> menuHandler.eliminarMicrochipPorId();
             case 9 -> menuHandler.actualizarMicrochipPorMascota();
             case 10 -> menuHandler.eliminarMicrochipPorMascota();
+            case 11 -> menuHandler.crearMascotaSinValidar();
             case 0 -> {
                 System.out.println("Saliendo...");
                 running = false;

@@ -1,6 +1,6 @@
 package Service;
 
-import Dao.GenericDAO;
+import java.sql.Connection;
 import Dao.IMicrochipDAO;
 import Models.Microchip;
 import java.util.List;
@@ -166,6 +166,12 @@ public class MicrochipServiceImpl implements GenericService<Microchip>{
             }
             // Si llegamos aquí: es UPDATE y el codigo pertenece al microchip → OK
         }
+    }    
+    
+        public void insertarTx(Microchip microchip, Connection conn) throws Exception {
+        validateMicrochip(microchip);
+        validateCodigoUnique(microchip.getCodigo(), microchip.getId());
+        microchipDAO.insertTx(microchip, conn); // usa el INSERT transaccional del DAO
     }
 }    
 

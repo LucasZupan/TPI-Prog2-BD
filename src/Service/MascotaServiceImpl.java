@@ -1,5 +1,8 @@
 package Service;
 
+import Config.DatabaseConnection;
+import Config.TransactionManager;
+import java.sql.Connection;
 import Dao.MascotaDAO;
 import Models.Mascota;
 import java.util.List;
@@ -248,5 +251,58 @@ public class MascotaServiceImpl implements GenericService<Mascota>{
         if (mascota.getDuenio()== null || mascota.getDuenio().trim().isEmpty()) {
             throw new IllegalArgumentException("El duenio no puede estar vacío");
         }        
-    }    
+    } 
+    
+    
+    /**
+    * Inserta una mascota y su microchip asociado dentro de una transacción
+    * completa, sin validaciones de negocio previas.
+    *
+    * Este método se utiliza exclusivamente para la demostración de rollback.
+    * No realiza las validaciones habituales (por ejemplo, dueño vacío),
+    * por lo que un error de integridad SQL puede provocar la reversión completa
+    * de la transacción.
+    *
+    * Flujo:
+    * 1. Inicia una transacción con TransactionManager.
+    * 2. Inserta el microchip (si existe) usando la misma conexión.
+    * 3. Muestra un mensaje en consola confirmando el insert del microchip.
+    * 4. Intenta insertar la mascota.
+    * 5. Si ocurre un error (por ejemplo, dueño vacío → violación de constraint),
+    *    se ejecuta automáticamente el rollback y no queda ningún cambio en la BD.
+    *
+    * Ejemplo de uso:
+    * - Llamado desde MenuHandler.crearMascotaSinValidar() para simular un fallo
+    *   y evidenciar el comportamiento del rollback en acción.
+    *
+    * @param mascota Mascota a insertar junto con su microchip asociado.
+    * @throws Exception Si ocurre un error SQL o técnico que provoca el rollback.
+    */
+    public void insertarConTransaccionDemoSinValidar(Mascota mascota) throws Exception {
+        try (Connection conn = DatabaseConnection.getConnection();
+             TransactionManager tx = new TransactionManager(conn)) {
+
+            tx.startTransaction();
+            // 1) Insertar microchip (si viene uno nuevo) en la MISMA conexión/tx
+            if (mascota.getMicrochip() != null && mascota.getMicrochip().getId() == 0) {
+                microchipServiceImpl.insertarTx(mascota.getMicrochip(), conn);  // ver método abajo
+                System.out.println();
+                System.out.println("[TX] Microchip insertado (sin commit): ID="
+                    + mascota.getMicrochip().getId() + ", codigo="
+                    + mascota.getMicrochip().getCodigo());
+            }
+
+            // 2) Insertar mascota (puede fallar si duenio = '' por el CHECK en BD)
+            mascotaDAO.insertTx(mascota, conn);
+
+            tx.commit();
+            System.out.println();
+            System.out.println("[TX] Commit realizado.");
+            System.out.println();
+        } catch (Exception e) {
+            System.out.println("[TX] Error: " + e.getMessage() + " → rollback.");
+            System.out.println();
+            throw e; // TransactionManager hará rollback en close() si seguía activa
+        }
+    }
 }

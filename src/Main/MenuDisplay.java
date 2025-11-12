@@ -53,6 +53,7 @@ public class MenuDisplay {
         System.out.println("8. Eliminar microchip por ID");
         System.out.println("9. Actualizar microchip por ID de mascota");
         System.out.println("10. Eliminar microchip por ID de mascota");
+        System.out.println("11. Crear mascota con microchip asociado sin Validar (Rollback demo)");
         System.out.println("0. Salir");
         System.out.print("Ingrese una opcion: ");
     }

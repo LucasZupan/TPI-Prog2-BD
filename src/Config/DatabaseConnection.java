@@ -22,7 +22,9 @@ import java.sql.SQLException;
  */
 public final class DatabaseConnection {
     /** URL de conexión JDBC. Configurable via -Ddb.url */
-    private static final String URL = System.getProperty("db.url", "jdbc:mysql://localhost:3306/mascotas_microchips");
+    private static final String URL = System.getProperty("db.url",
+    "jdbc:mysql://localhost:3306/mascotas_microchips" +
+    "?useSSL=false&serverTimezone=UTC&useUnicode=true&characterEncoding=utf8");
 
     /** Usuario de la base de datos. Configurable via -Ddb.user */
     private static final String USER = System.getProperty("db.user", "root");
