@@ -15,7 +15,7 @@ import java.util.List;
  * Gestiona todas las operaciones de persistencia de microchips en la base de datos.
  *
  * Características:
- * - Implementa GenericDAO<Microchip> para operaciones CRUD estándar
+ * - Implementa IMicrochipDAO para operaciones CRUD estándar
  * - Usa PreparedStatements en TODAS las consultas (protección contra SQL injection)
  * - Implementa soft delete (eliminado=TRUE, no DELETE físico)
  * - NO maneja relaciones (Microchip es entidad independiente)

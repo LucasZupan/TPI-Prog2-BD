@@ -181,8 +181,7 @@ public class AppMenu {
      *   ↓
      * Models (Mascota, Microchip, Base)
      *
-     * ¿Por qué MascotaDAO necesita MicrochipDAO?
-     * - Actualmente NO lo usa (inyección preparada para futuras operaciones)
+     * ¿Por qué MascotaDAO necesita MicrochipDAO?     
      * - Podría usarse para operaciones transaccionales coordinadas
      *
      * ¿Por qué MascotaService necesita MicrochipService?
