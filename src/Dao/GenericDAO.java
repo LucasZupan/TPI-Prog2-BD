@@ -1,6 +1,5 @@
 package Dao;
 
-import Models.Microchip;
 import java.sql.Connection;
 import java.util.List;
 

@@ -39,3 +39,19 @@ CREATE TABLE IF NOT EXISTS mascotas (
   CONSTRAINT chk_mascota_eliminado CHECK (eliminado IN (0,1))
 ) ENGINE=InnoDB;
 
+--  Trigger anti-reasignacion (una vez asignado, no cambiar a otra mascota)
+DELIMITER //
+
+CREATE TRIGGER trg_mascotas_no_reassign_microchip
+BEFORE UPDATE ON mascotas
+FOR EACH ROW
+BEGIN
+  -- Si antes tenía microchip y ahora lo quiero cambiar o sacar:
+  IF OLD.microchip_id IS NOT NULL 
+     AND NEW.microchip_id <> OLD.microchip_id THEN
+    SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'No se permite cambiar o quitar un microchip ya asignado a una mascota';
+  END IF;
+END//
+
+DELIMITER ;
