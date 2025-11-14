@@ -98,7 +98,12 @@ Cada persona debe completar según su instalación local:
 3. Ejecutar el programa:
        src/Main/AppMenu.java
 
-## 5. Opciones del menú principal
+## 5. Diagrama UML del Sistema
+
+A continuación se presenta el diagrama UML completo que modela el dominio Mascotas y Microchips, incluyendo entidades, relaciones 1:1, servicios, DAOs y flujos principales:
+![Diagrama UML](uml_diagrama.png)
+
+## 6. Opciones del menú principal
 
 1. Crear Mascota  
 2. Listar Mascotas  
@@ -115,7 +120,7 @@ Cada persona debe completar según su instalación local:
 
 ---
 
-## 6. Demostración de Transacción y Rollback (Opción 11)
+## 7. Demostración de Transacción y Rollback (Opción 11)
 
 Esta función permite probar una **transacción real**:
 
@@ -138,7 +143,7 @@ Demuestra que:
 
 ---
 
-## 7. Estructura del proyecto
+## 8. Estructura del proyecto
 
     src/
      ├── Config/
@@ -167,7 +172,7 @@ Demuestra que:
 
 ---
 
-## 8. Rol de cada capa
+## 9. Rol de cada capa
 
 ### Models
 Solo contienen atributos, constructores y getters/setters.  
