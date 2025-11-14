@@ -7,7 +7,7 @@ Este proyecto implementa un sistema de registro para **Mascotas** y sus **Microc
 
 ## 1. Descripción del dominio elegido
 
-El dominio elegido es la gestión de mascotas y microchips veterinarios:
+El dominio elegido es la gestión de mascotas y microchips:
 
 - Registrar mascotas con:
   - Nombre (obligatorio)
@@ -19,8 +19,8 @@ El dominio elegido es la gestión de mascotas y microchips veterinarios:
 - Registrar microchips con:
   - Código único (obligatorio)
   - Fecha de implantación (opcional)
-  - Veterinaria
-  - Observaciones
+  - Veterinaria (opcional)
+  - Observaciones (opcional)
 
 Relación aplicada: **1 mascota ↔ 1 microchip**.
 
@@ -40,7 +40,7 @@ Software necesario:
 Scripts SQL incluidos:
 
 - script_creacion.sql
-- script_datos.sql
+- script_datos_test.sql
 
 ---
 
@@ -60,23 +60,43 @@ Cada persona debe completar según su instalación local:
 
 - HOST (por ejemplo: localhost)
 - PUERTO (por ejemplo: 3306)
-- NOMBRE_BD (coincidir con los scripts SQL)
 - USUARIO y PASSWORD de MySQL
 
 ---
 
 ## 4. Cómo compilar y ejecutar
 
-1. Importar el proyecto en NetBeans.  
-2. Ejecutar los archivos:
-   - script_creacion.sql  
-   - script_datos.sql (opcional)  
-3. Configurar DatabaseConnection.java  
-4. Ejecutar:
+1. Importar el proyecto en NetBeans.
 
-    src/Main/AppMenu.java
+2. Crear la base de datos en MySQL Workbench (o cualquier cliente SQL):
+   - Abrir el archivo **script_creacion.sql** y ejecutarlo completo.
+     Este archivo crea:
+     - La base de datos `mascotas_microchips`
+     - Las tablas `mascotas` y `microchips`
+     - Sus claves primarias, foráneas y restricciones CHECK
 
----
+   - (Opcional) Ejecutar **script_datos_test.sql** para cargar datos de prueba.  
+  Este archivo inserta datos completos de prueba:
+
+  - 15 mascotas de las cuales:  
+    - 5 mascotas activas sin microchip  
+    - 5 mascotas activas con microchip asignado  
+    - 5 mascotas marcadas como eliminadas (=1) junto con sus microchips  
+
+  - 15 microchips de los cuales:  
+    - 5 microchips están asignados a mascotas activas
+    - 5 microchips quedan libres para futuras asignaciones  
+    - 5 microchips quedan marcados como eliminados (=1) por corresponder a mascotas eliminadas
+
+     Esto permite probar:
+     - Listado completo
+     - LEFT JOIN funcionando
+     - Mascotas con y sin microchip
+     - Soft delete
+     - Microchips libres para asignación
+
+3. Ejecutar el programa:
+       src/Main/AppMenu.java
 
 ## 5. Opciones del menú principal
 
@@ -167,29 +187,6 @@ Aplicación de reglas de negocio:
 
 ### Presentación (Main)  
 Maneja el menú, el flujo del usuario, inputs y selección de operaciones.
-
----
-
-## 9. Enlace al video
-
-(Colocar aquí la URL del video de demostración)
-
----
-
-## 10. Checklist del Trabajo Final
-
-- CRUD completo  
-- JDBC con PreparedStatement  
-- Arquitectura en capas  
-- Modelo 1→1  
-- Soft delete  
-- JOIN con LEFT JOIN  
-- Transacción + rollback demostrado  
-- Validaciones en capa Service  
-- Scripts SQL incluidos  
-- Menú funcional  
-- README completo  
-- Video demostrativo  
 
 ---
 
