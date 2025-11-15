@@ -160,7 +160,8 @@ public class MenuHandler {
                 if (m.getMicrochip() != null) {
                     System.out.println("   Microchip: " + m.getMicrochip().getCodigo() +
                             ", Veterinaria: " + m.getMicrochip().getVeterinaria() +
-                            ", Fecha de Implantacion: " + m.getMicrochip().getFechaImplantacion());
+                            ", Fecha de Implantacion: " + m.getMicrochip().getFechaImplantacion() +
+                            ", Observaciones: " + m.getMicrochip().getObservaciones());
                 }
             }
         } catch (Exception e) {
@@ -322,7 +323,8 @@ public class MenuHandler {
             for (Microchip m : microchips) {
                 System.out.println("ID: " + m.getId() + ", codigo:" + m.getCodigo() +
                         ", fecha de implantacion: " + m.getFechaImplantacion() + 
-                        ", veterinaria: " + m.getVeterinaria());
+                        ", veterinaria: " + m.getVeterinaria() +
+                        ", observaciones: " + m.getObservaciones());
             }
         } catch (Exception e) {
             System.err.println("Error al listar microchips: " + e.getMessage());

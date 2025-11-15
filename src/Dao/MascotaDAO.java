@@ -58,7 +58,7 @@ public class MascotaDAO implements GenericDAO<Mascota> {
      * - Microchip (puede ser NULL): codigo, fecha_implantacion, veterinaria
      */
     private static final String SELECT_BY_ID_SQL = "SELECT m.id, m.nombre, m.especie, m.raza, m.fecha_nacimiento, m.duenio, m.microchip_id, " +
-            "c.id AS mc_id, c.codigo, c.fecha_implantacion, c.veterinaria" +
+            "c.id AS mc_id, c.codigo, c.fecha_implantacion, c.veterinaria, c.observaciones" +
             " FROM mascotas m LEFT JOIN microchips c ON m.microchip_id = c.id " +
             "WHERE m.id = ? AND m.eliminado = FALSE";   
     
@@ -68,7 +68,7 @@ public class MascotaDAO implements GenericDAO<Mascota> {
      * Filtra por eliminado=FALSE (solo mascotas activas).
      */
     private static final String SELECT_ALL_SQL = "SELECT m.id, m.nombre, m.especie, m.raza, m.fecha_nacimiento, m.duenio, m.microchip_id, " +
-            "c.id AS mc_id, c.codigo, c.fecha_implantacion, c.veterinaria" +
+            "c.id AS mc_id, c.codigo, c.fecha_implantacion, c.veterinaria, c.observaciones" +
             " FROM mascotas m LEFT JOIN microchips c ON m.microchip_id = c.id " +
             "WHERE m.eliminado = FALSE";
  
@@ -414,7 +414,9 @@ public class MascotaDAO implements GenericDAO<Mascota> {
             java.sql.Date fi = rs.getDate("fecha_implantacion");
             microchip.setFechaImplantacion(fi != null ? fi.toLocalDate() : null);
             microchip.setVeterinaria(rs.getString("veterinaria"));
+            microchip.setObservaciones(rs.getString("observaciones"));
             mascota.setMicrochip(microchip);
+            
         }
 
         return mascota;
