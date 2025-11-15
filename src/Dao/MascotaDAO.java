@@ -79,7 +79,7 @@ public class MascotaDAO implements GenericDAO<Mascota> {
      * Solo mascotas activas (eliminado=FALSE).
      */
     private static final String SEARCH_BY_NAME_SQL = "SELECT m.id, m.nombre, m.especie, m.raza, m.fecha_nacimiento, m.duenio, m.microchip_id, " +
-            "c.id AS mc_id, c.codigo, c.fecha_implantacion, c.veterinaria" +
+            "c.id AS mc_id, c.codigo, c.fecha_implantacion, c.veterinaria, c.observaciones" +
             " FROM mascotas m LEFT JOIN microchips c ON m.microchip_id = c.id " +
             "WHERE m.eliminado = FALSE AND (m.nombre LIKE ? OR m.duenio LIKE ?)";
   
