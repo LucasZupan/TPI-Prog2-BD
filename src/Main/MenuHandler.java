@@ -452,8 +452,23 @@ public class MenuHandler {
 
             if (m.getMicrochip()== null) {
                 System.out.println("La mascota no tiene microchip asociado.");
-                return;
-            }
+                // _________________________________________________________ 
+                System.out.print("¿Desea asociarle un microchip existente a la mascota? (s/n): ");    
+                if (scanner.nextLine().equalsIgnoreCase("s")) {
+                    System.out.print("ID del microchip a asociar: ");
+                    int idMic = Integer.parseInt(scanner.nextLine());
+                    Microchip mic = mascotaService.getMicrochipService().getById(idMic);
+                        if (mic == null) {
+                            System.out.println("Microchip no encontrado.");
+                            return;
+                        }
+                    m.setMicrochip(mascotaService.getMicrochipService().getById(idMic));
+                    mascotaService.actualizar(m);
+                    }
+                }
+            
+               // _________________________________________________________ 
+              
 
             Microchip c = m.getMicrochip();
             

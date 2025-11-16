@@ -13,7 +13,7 @@ import java.sql.SQLException;
  * - Configuración cargada una sola vez en bloque static
  *
  * Configuración por defecto:
- * - URL: jdbc:mysql://localhost:3306/dbtpi3
+ * - URL: jdbc:mysql://localhost:3306/mascotas_microchips
  * - Usuario: root
  * - Contraseña: vacía (común en desarrollo local)
  *
