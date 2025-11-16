@@ -39,7 +39,7 @@ public class MascotaServiceImpl implements GenericService<Mascota>{
      * Constructor con inyección de dependencias.
      * Valida que ambas dependencias no sean null (fail-fast).
      *
-     * @param mascotaDAO DAO de personas (normalmente MascotaDAO)
+     * @param mascotaDAO DAO de mascotas (normalmente MascotaDAO)
      * @param microchipServiceImpl Servicio de microchips para operaciones coordinadas
      * @throws IllegalArgumentException si alguna dependencia es null
      */
@@ -99,7 +99,7 @@ public class MascotaServiceImpl implements GenericService<Mascota>{
      * - Asignar nuevo microchip: opción 6 (crea nuevo) o 7 (usa existente)
      * - Actualizar microchip: opción 9 (modifica microchip actual)
      *
-     * @param persona Persona con los datos actualizados
+     * @param mascota Mascota con los datos actualizados
      * @throws Exception Si la validación falla o la mascota no existe
      */
     @Override
@@ -207,7 +207,7 @@ public class MascotaServiceImpl implements GenericService<Mascota>{
      *
      * @param mascotaId ID de la mascota dueña del microchip
      * @param microchipId ID del microchip a eliminar
-     * @throws IllegalArgumentException Si los IDs son <= 0, la mascota no existe, o el microchip no pertenece a la persona
+     * @throws IllegalArgumentException Si los IDs son <= 0, la mascota no existe, o el microchip no pertenece a la mascota
      * @throws Exception Si hay error de BD
      */
     public void eliminarMicrochipDeMascota(int mascotaId, int microchipId) throws Exception {
@@ -224,7 +224,7 @@ public class MascotaServiceImpl implements GenericService<Mascota>{
             throw new IllegalArgumentException("El microchip no pertenece a esta mascota");
         }
 
-        // Secuencia transaccional: actualizar FK → eliminar domicilio
+        // Secuencia transaccional: actualizar FK → eliminar microchip
         mascota.setMicrochip(null);
         mascotaDAO.actualizar(mascota);
         microchipServiceImpl.eliminar(microchipId);

@@ -61,7 +61,7 @@ public class Mascota extends Base {
     
     /**
      * Establece el nombre de la mascota.
-     * Validación: PersonaServiceImpl verifica que no esté vacío.
+     * Validación: MascotaServiceImpl verifica que no esté vacío.
      */
     public void setNombre(String nombre) {
         this.nombre = nombre;
@@ -72,7 +72,7 @@ public class Mascota extends Base {
     }
     /**
      * Establece la especie de la mascota.
-     * Validación: PersonaServiceImpl verifica que no esté vacío.
+     * Validación: MascotaServiceImpl verifica que no esté vacío.
      */
     public void setEspecie(String especie) {
         this.especie = especie;
@@ -84,7 +84,7 @@ public class Mascota extends Base {
     
     /**
      * Establece la raza de la mascota.
-     * Validación: PersonaServiceImpl verifica que no este vacio.
+     * Validación: MascotaServiceImpl verifica que no este vacio.
      */
     public void setRaza(String raza) {
         this.raza = raza;
@@ -96,7 +96,7 @@ public class Mascota extends Base {
     
     /**
      * Establece la fecha de nacimiento de la mascota.
-     * Validación: PersonaServiceImpl verifica que no esté vacío.
+     * Validación: MascotaServiceImpl verifica que no esté vacío.
      */
     public void setFechaNacimiento(LocalDate fechaNacimiento) {
         this.fechaNacimiento = fechaNacimiento;
@@ -108,7 +108,7 @@ public class Mascota extends Base {
     
     /**
      * Establece el duenio de la mascota.
-     * Validación: PersonaServiceImpl verifica que no esté vacío.
+     * Validación: MascotaServiceImpl verifica que no esté vacío.
      */
     public void setDuenio(String duenio) {
         this.duenio = duenio;
@@ -120,7 +120,7 @@ public class Mascota extends Base {
     
     /**
      * Asocia o desasocia un microchip  a la mascota.
-     * Si domicilio es null, la FK microchip_id será NULL en la BD.
+     * Si microchip es null, la FK microchip_id será NULL en la BD.
      */
     public void setMicrochip(Microchip microchip) {
         this.microchip = microchip;
