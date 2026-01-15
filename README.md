@@ -1,198 +1,162 @@
-# Sistema de Gestión de Mascotas y Microchips  
-### Trabajo Final Integrador – Programación II
+# Pet & Microchip Management System
 
-Este proyecto implementa un sistema de registro para **Mascotas** y sus **Microchips**, utilizando arquitectura en capas, JDBC, validaciones, CRUD completo, JOINs y una **transacción real con rollback**.
+Backend system developed in Java focused on data integrity, layered architecture, and transactional consistency.
 
----
+The application manages pets and their associated microchips, implementing full CRUD operations, validations, SQL JOINs, and a real database transaction with rollback using JDBC and MySQL.
 
-## 1. Descripción del dominio elegido
-
-El dominio elegido es la gestión de mascotas y microchips:
-
-- Registrar mascotas con:
-  - Nombre (obligatorio)
-  - Especie (obligatorio)
-  - Raza (opcional)
-  - Fecha de nacimiento (opcional)
-  - Dueño (obligatorio)
-
-- Registrar microchips con:
-  - Código único (obligatorio)
-  - Fecha de implantación (opcional)
-  - Veterinaria (opcional)
-  - Observaciones (opcional)
-
-Relación aplicada: **1 mascota ↔ 1 microchip**.
-
-Includes validaciones, transacciones, soft delete, menú por consola y persistencia en MySQL.
+The project is intentionally designed to demonstrate backend fundamentals such as persistence, business rules, and transaction management.
 
 ---
 
-## 2. Requisitos del entorno
+## Key Concepts Demonstrated
 
-Software necesario:
+- Layered architecture (DAO / Service / Model)
+- JDBC persistence with MySQL
+- Full CRUD operations
+- SQL JOINs
+- Transactions and rollback
+- Data validation
+- Soft delete strategy
+- Separation of concerns
+- Business rule enforcement
+
+---
+
+## Domain Overview
+
+### Pets
+- Name (required)
+- Species (required)
+- Breed (optional)
+- Birth date (optional)
+- Owner (required)
+
+### Microchips
+- Unique code (required)
+- Implant date (optional)
+- Veterinary clinic (optional)
+- Notes (optional)
+
+Relationship:
+One-to-one (1 Pet ↔ 1 Microchip)
+
+---
+
+## Tech Stack
 
 - Java 17+
+- JDBC
 - MySQL 8+
-- Apache NetBeans 19 (recomendado)
-- Driver JDBC MySQL (incluido en el proyecto)
+- SQL
+- Apache NetBeans
 
-Scripts SQL incluidos:
+---
+
+## Database Setup
+
+The project includes SQL scripts for database creation and test data:
 
 - script_creacion.sql
 - script_datos_test.sql
 
----
+Database configuration is defined in:
 
-## 3. Configuración de la base de datos
+src/Config/DatabaseConnection.java
 
-Editar credenciales en:
-
-    src/Config/DatabaseConnection.java
-
-Modificar:
-
-    private static final String URL = "jdbc:mysql://HOST:PUERTO/NOMBRE_BD";
-    private static final String USER = "TU_USUARIO";
-    private static final String PASSWORD = "TU_PASSWORD";
-
-Cada persona debe completar según su instalación local:
-
-- HOST (por ejemplo: localhost)
-- PUERTO (por ejemplo: 3306)
-- USUARIO y PASSWORD de MySQL
+URL, user and password must be configured according to the local MySQL setup.
 
 ---
 
-## 4. Cómo compilar y ejecutar
+## Running the Project
 
-1. Importar el proyecto en NetBeans.
+1. Import the project into NetBeans.
+2. Create the database by running script_creacion.sql.
+3. (Optional) Load test data using script_datos_test.sql.
+4. Run the application from:
 
-2. Crear la base de datos en MySQL Workbench (o cualquier cliente SQL):
-   - Abrir el archivo **script_creacion.sql** y ejecutarlo completo.
-     Este archivo crea:
-     - La base de datos `mascotas_microchips`
-     - Las tablas `mascotas` y `microchips`
-     - Sus claves primarias, foráneas y restricciones CHECK
+src/Main/AppMenu.java
 
-   - (Opcional) Ejecutar **script_datos_test.sql** para cargar datos de prueba.  
-  Este archivo inserta datos completos de prueba:
-
-  - 15 mascotas de las cuales:  
-    - 5 mascotas activas sin microchip  
-    - 5 mascotas activas con microchip asignado  
-    - 5 mascotas marcadas como eliminadas (=1) junto con sus microchips  
-
-  - 15 microchips de los cuales:  
-    - 5 microchips están asignados a mascotas activas
-    - 5 microchips quedan libres para futuras asignaciones  
-    - 5 microchips quedan marcados como eliminados (=1) por corresponder a mascotas eliminadas
-
-     Esto permite probar:
-     - Listado completo
-     - LEFT JOIN funcionando
-     - Mascotas con y sin microchip
-     - Soft delete
-     - Microchips libres para asignación
-
-3. Ejecutar el programa:
-       src/Main/AppMenu.java
-
-## 5. Diagrama UML del Sistema
-
-A continuación se presenta el diagrama UML completo que modela el dominio Mascotas y Microchips, incluyendo entidades, relaciones 1:1, servicios, DAOs y flujos principales:
-![Diagrama UML](uml_diagrama.png)
-
-## 6. Opciones del menú principal
-
-1. Crear Mascota  
-2. Listar Mascotas  
-3. Actualizar Mascota  
-4. Eliminar Mascota (soft delete)  
-5. Crear Microchip  
-6. Listar Microchips  
-7. Actualizar Microchip por ID  
-8. Eliminar Microchip por ID  
-9. Actualizar Microchip por ID de Mascota  
-10. Eliminar Microchip de una Mascota (seguro, actualiza FK)  
-11. Crear Mascota + Microchip SIN validar (Rollback demo)  
-0. Salir
+The application runs as a console-based menu system.
 
 ---
 
-## 7. Demostración de Transacción y Rollback (Opción 11)
+## Transaction & Rollback Example
 
-Esta función permite probar una **transacción real**:
+The system includes a specific operation that demonstrates a real database transaction with rollback.
 
-Flujo:
+Flow:
 
-1. Se ingresan los datos del microchip.  
-2. El microchip se **inserta dentro de una transacción** usando insertTx().  
-3. Se imprime el microchip aún sin commit.  
-4. Luego se ingresan los datos de la mascota.  
-5. Si contiene un error (ej: dueño vacío → viola CHECK del SQL):  
-   - La mascota **no se inserta**  
-   - El microchip **se revierte**  
-6. TransactionManager hace rollback automático.
+1. A microchip is inserted within a transaction.
+2. The pet is inserted within the same transaction.
+3. If the pet insertion fails due to validation constraints:
+   - The pet is not persisted
+   - The microchip insertion is rolled back automatically
 
-Demuestra que:
-
-- Ambas operaciones fueron parte de la misma transacción.  
-- No quedan microchips huérfanos.  
-- No se corrompe la BD.  
+This ensures:
+- No orphan records
+- Database consistency
+- Proper transactional behavior
 
 ---
 
-## 8. Estructura del proyecto
+## Project Structure
 
-    src/
-     ├── Config/
-     │     ├── DatabaseConnection.java
-     │     └── TransactionManager.java
-     │
-     ├── Dao/
-     │     ├── GenericDAO.java
-     │     ├── MascotaDAO.java
-     │     └── MicrochipDAO.java
-     │
-     ├── Models/
-     │     ├── Base.java
-     │     ├── Mascota.java
-     │     └── Microchip.java
-     │
-     ├── Service/
-     │     ├── GenericService.java
-     │     ├── MascotaServiceImpl.java
-     │     └── MicrochipServiceImpl.java
-     │
-     └── Main/
-           ├── AppMenu.java
-           ├── MenuHandler.java
-           └── MenuDisplay.java
-
----
-
-## 9. Rol de cada capa
-
-### Models
-Solo contienen atributos, constructores y getters/setters.  
-No tienen lógica de negocio.
-
-### DAO  
-Capa que interactúa directamente con MySQL usando JDBC.  
-Implementa CRUD, validaciones SQL, JOINs y soft delete.
-
-### Service  
-Aplicación de reglas de negocio:  
-- Validaciones de datos  
-- Unicidad de microchip  
-- Coordinación Mascota–Microchip  
-- Transacción segura al eliminar o crear  
-- Transformación de excepciones técnicas en errores legibles  
-
-### Presentación (Main)  
-Maneja el menú, el flujo del usuario, inputs y selección de operaciones.
+src/
+ ├── Config/
+ │     ├── DatabaseConnection.java
+ │     └── TransactionManager.java
+ │
+ ├── Dao/
+ │     ├── GenericDAO.java
+ │     ├── MascotaDAO.java
+ │     └── MicrochipDAO.java
+ │
+ ├── Models/
+ │     ├── Base.java
+ │     ├── Mascota.java
+ │     └── Microchip.java
+ │
+ ├── Service/
+ │     ├── GenericService.java
+ │     ├── MascotaServiceImpl.java
+ │     └── MicrochipServiceImpl.java
+ │
+ └── Main/
+       ├── AppMenu.java
+       ├── MenuHandler.java
+       └── MenuDisplay.java
 
 ---
 
-FIN DEL README
+## Layer Responsibilities
+
+### Model
+- Plain entities
+- No business logic
+
+### DAO
+- Direct interaction with MySQL using JDBC
+- CRUD operations
+- SQL JOINs
+- Soft delete implementation
+
+### Service
+- Business rules
+- Data validation
+- Transaction coordination
+- Error handling and transformation
+
+### Presentation
+- Console-based menu
+- User interaction flow
+- Operation handling
+
+---
+
+## Project Status
+
+Completed.
+
+This project focuses exclusively on backend fundamentals by design:
+architecture, persistence, transactions, and business logic.
+No frontend was included.
