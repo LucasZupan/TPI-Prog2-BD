@@ -100,7 +100,7 @@ This ensures:
 ---
 
 ## Project Structure
-
+```
 src/
  ├── Config/
  │     ├── DatabaseConnection.java
@@ -127,6 +127,7 @@ src/
        └── MenuDisplay.java
 
 ---
+```
 
 ## Layer Responsibilities
 
