@@ -1,5 +1,6 @@
 # Pet & Microchip Management System
 
+
 Backend system developed in Java focused on data integrity, layered architecture, and transactional consistency.
 
 The application manages pets and their associated microchips, implementing full CRUD operations, validations, SQL JOINs, and a real database transaction with rollback using JDBC and MySQL.
