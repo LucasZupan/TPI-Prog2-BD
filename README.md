@@ -126,8 +126,9 @@ src/
        ├── MenuHandler.java
        └── MenuDisplay.java
 
----
 ```
+---
+
 
 ## Layer Responsibilities
 
